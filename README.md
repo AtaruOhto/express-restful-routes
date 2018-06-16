@@ -2,7 +2,9 @@
 
 Helper library to generate Rails like RESTful routing for Express.
 
-Quoted from <cite>http://guides.rubyonrails.org/routing.html</cite>
+## Motivation
+
+It'll tend to be very difficult to read and grasp routes if there are not rules about how to define routes, especially in the big application. This library provides Rails like RESTful route definition rules.
 
 <table>
   <thead>
@@ -34,40 +36,79 @@ Quoted from <cite>http://guides.rubyonrails.org/routing.html</cite>
     </tr>
     <tr>
       <td>GET</td>
-      <td>/photos/:id</td>
+      <td>/photos/:param</td>
       <td>photos#show</td>
       <td>display a specific photo</td>
     </tr>
     <tr>
       <td>GET</td>
-      <td>/photos/:id/edit</td>
+      <td>/photos/:param/edit</td>
       <td>photos#edit</td>
       <td>return an HTML form for editing a photo</td>
     </tr>
     <tr>
       <td>PATCH/PUT</td>
-      <td>/photos/:id</td>
+      <td>/photos/:param</td>
       <td>photos#update</td>
       <td>update a specific photo</td>
     </tr>
     <tr>
       <td>DELETE</td>
-      <td>/photos/:id</td>
+      <td>/photos/:param</td>
       <td>photos#destroy</td>
       <td>delete a specific photo</td>
     </tr>
   </tbody>
 </table>
 
+Quoted from <cite>http://guides.rubyonrails.org/routing.html</cite>.
+
 ## Getting Started
 
 ### Install
 
+This library is a Node.js module available through the npm registry.
+Installation is done using the _npm install_ or _yarn add_ command:
+
 ```
+npm install --save express-restful-routes
+or
 yarn add express-restful-routes
 ```
 
-### Define RESTFul Routes
+### Define RESTFul Routes Example
+
+#### Minimal Example
+
+```
+const express = require("express");
+const app = express();
+const expressRestfulRoutes = require('express-restful-routes')
+
+const handler = (req, res, next) => {
+  res.send("hello");
+};
+
+const routes = {
+  users: [
+    { index: handler },
+    { show: handler },
+    { new: handler ,
+    { create: handler },
+    { edit: handler },
+    { update: handler },
+    { destroy: handler }
+  ]
+};
+
+app.use(expressRestfulRoutes.defRoutes(routes));
+
+app.listen(5555, () => {
+  console.log("server running... port 5555");
+});
+```
+
+#### Example
 
 ```
 const express = require("express");
@@ -103,7 +144,7 @@ const routes = {
     /* will define app.get('/users', [middleware1, middleware2, handler]) */
 
     { show: [middleware1, middleware2, handler] },
-    /* will define app.get('/users/:id', [middleware1, middleware2, handler])  */
+    /* will define app.get('/users/:param', [middleware1, middleware2, handler])  */
 
     { new: [middleware2, handler] },
     /* will define app.get('/users/new', [middleware2, handler]) */
@@ -112,13 +153,13 @@ const routes = {
     /* will define app.post('/users', handler) */
 
     { edit: handler },
-    /* will define app.get('/users/:id/edit', handler) */
+    /* will define app.get('/users/:param/edit', handler) */
 
     { update: handler },
-    /* will define app.patch('/users/:id', handler) */
+    /* will define app.patch('/users/:param', handler) */
 
     { destroy: handler }
-    /* will define app.delete('/users/:id', handler) */
+    /* will define app.delete('/users/:param', handler) */
   ],
   /* Only Specified Routes */
   books: [
