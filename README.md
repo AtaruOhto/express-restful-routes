@@ -1,8 +1,8 @@
-# Express RESTful Router
+# Express RESTful Routes
 
 Helper library to generate Rails like RESTful routing for Express.
 
-<cite>http://guides.rubyonrails.org/routing.html</cite>
+Quoted from <cite>http://guides.rubyonrails.org/routing.html</cite>
 
 <table>
   <thead>
@@ -74,11 +74,13 @@ const express = require("express");
 const app = express();
 const expressRestfulRoutes = require('express-restful-routes')
 
+/* Middleware1 */
 const middleware1 = (req, res, next) => {
   console.log("middleware1");
   next();
 };
 
+/* Middleware2 */
 const middleware2 = (req, res, next) => {
   console.log("middleware2");
   next();
@@ -86,29 +88,7 @@ const middleware2 = (req, res, next) => {
 
 const handler = (req, res, next) => {
   console.log(req.app.locals.expressRestfulRoutes);
-  /*
-  Path helper functions will be available via app.locals.expressRestfulRoutes
-  {
-    usersIndexPath: [Function],
-    usersShowPath: [Function],
-    usersNewPath: [Function],
-    usersCreatePath: [Function],
-    usersEditPath: [Function],
-    usersUpdatePath: [Function],
-    usersDestroyPath: [Function],
-    booksIndexPath: [Function],
-    booksNewPath: [Function],
-    booksCreatePath: [Function],
-    booksEditPath: [Function],
-    commentsIndexPath: [Function],
-    commentsShowPath: [Function],
-    commentsNewPath: [Function],
-    commentsEditPath: [Function],
-    commentsCreatePath: [Function],
-    commentsUpdatePath: [Function],
-    commentsDestroyPath: [Function]
-  }
-  */
+  /* Path helper functions will be available via app.locals.expressRestfulRoutes */
 
   if (req.params) {
     console.log(req.params);

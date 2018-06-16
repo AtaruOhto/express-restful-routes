@@ -1,6 +1,6 @@
 {
   "name": "express-restful-routes",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "helper library to generate Ruby on Rails like RESTful routing for Express.",
   "main": "index.js",
   "scripts": {
