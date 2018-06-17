@@ -2,37 +2,35 @@
  * Express Restful Routes v0.0.1
  *
  * Released under the MIT license
+ * 
+ * AtaruOhto
  * http://opensource.org/licenses/MIT
  */
 
 import { Express, Request, Response, NextFunction } from "express";
 import _flatMap from "lodash/flatMap";
+import _sortBy from "lodash/sortBy";
+
 import { RequestHandlerParams } from "express-serve-static-core";
-
-const INDEX = "index";
-const SHOW = "show";
-const NEW = "new";
-const EDIT = "edit";
-const CREATE = "create";
-const UPDATE = "update";
-const DESTROY = "destroy";
-const I = "i";
-const S = "s";
-const N = "n";
-const E = "e";
-const C = "c";
-const U = "u";
-const D = "d";
-
-export interface IRouteHandlerDefinition {
-  [key: string]: RequestHandlerParams;
-}
-
-export interface IRoutesDefinition {
-  [key: string]: IRouteHandlerDefinition[];
-}
-
-const validMethods = [
+import {
+  defIndex,
+  defShow,
+  defNew,
+  defEdit,
+  defCreate,
+  defUpdate,
+  defDestroy
+} from "./helpers/defActions";
+import {
+  defIndexPathHelper,
+  defShowPathHelper,
+  defNewPathHelper,
+  defEditPathHelper,
+  defCreatePathHelper,
+  defUpdatePathHelper,
+  defDestroyPathHelper
+} from "./helpers/defHelpers";
+import {
   INDEX,
   SHOW,
   NEW,
@@ -46,13 +44,23 @@ const validMethods = [
   E,
   C,
   U,
-  D
-];
+  D,
+  validActions,
+  ACTION_SORT_KEYS
+} from "./helpers/Actions";
+
+export interface IRouteHandlerDefinition {
+  [key: string]: RequestHandlerParams;
+}
+
+export interface IRoutesDefinition {
+  [key: string]: IRouteHandlerDefinition[];
+}
 
 const validateMethod = (httpMethod: string) => {
-  if (validMethods.indexOf(httpMethod) === -1) {
+  if (validActions.indexOf(httpMethod) === -1) {
     throw new Error(
-      `Invalid HTTP Method was Passed valid methods are ${validMethods}! You passed ${httpMethod}`
+      `Invalid HTTP Method was Passed valid methods are ${validActions}! You passed ${httpMethod}`
     );
   }
 };
@@ -70,133 +78,80 @@ const pickHttpMethodFromAction = (action: IRouteHandlerDefinition) =>
 const pickExpressHandlersFromAction = (action: IRouteHandlerDefinition) =>
   Object.values(action)[0];
 
-const defIndex = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  const path = `/${resource}`;
-  app.get(path, handlers);
-  app.locals.expressRestfulRoutes[`${resource}IndexPath`] = () => path;
-};
-
-const defShow = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  app.get(`/${resource}/:param`, handlers);
-  app.locals.expressRestfulRoutes[`${resource}ShowPath`] = (param: string) =>
-    `/${resource}/${param}`;
-};
-
-const defNew = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  const path = `/${resource}/new`;
-  app.get(path, handlers);
-  app.locals.expressRestfulRoutes[`${resource}NewPath`] = (param: string) =>
-    `/${resource}/${param}`;
-};
-
-const defEdit = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  app.get(`/${resource}/:param/edit`, handlers);
-  app.locals.expressRestfulRoutes[`${resource}EditPath`] = (param: string) =>
-    `/${resource}/${param}/edit`;
-};
-
-const defCreate = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  const path = `/${resource}`;
-  app.post(path, handlers);
-  app.locals.expressRestfulRoutes[`${resource}CreatePath`] = () => path;
-};
-
-const defUpdate = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  app.patch(`/${resource}/:param`, handlers);
-  app.locals.expressRestfulRoutes[`${resource}UpdatePath`] = (param: string) =>
-    `/${resource}/${param}`;
-};
-
-const defDestroy = (
-  app: Express,
-  resource: string,
-  handlers: RequestHandlerParams
-) => {
-  app.delete(`/${resource}/:param`, handlers);
-  app.locals.expressRestfulRoutes[`${resource}DestroyPath`] = (param: string) =>
-    `/${resource}/${param}`;
-};
-
 const registerRoute = (
   app: Express,
   resource: string,
   method: string,
-  handlers: RequestHandlerParams
+  handlers: RequestHandlerParams,
+  helperObject: Object
 ) => {
   switch (method) {
     case INDEX:
     case I:
       defIndex(app, resource, handlers);
+      defIndexPathHelper(resource, helperObject);
       break;
     case SHOW:
     case S:
       defShow(app, resource, handlers);
+      defShowPathHelper(resource, helperObject);
       break;
     case NEW:
     case N:
       defNew(app, resource, handlers);
+      defNewPathHelper(resource, helperObject);
       break;
     case EDIT:
     case E:
       defEdit(app, resource, handlers);
+      defEditPathHelper(resource, helperObject);
       break;
     case CREATE:
     case C:
       defCreate(app, resource, handlers);
+      defCreatePathHelper(resource, helperObject);
       break;
     case UPDATE:
     case U:
       defUpdate(app, resource, handlers);
+      defUpdatePathHelper(resource, helperObject);
       break;
     case DESTROY:
     case D:
       defDestroy(app, resource, handlers);
+      defDestroyPathHelper(resource, helperObject);
       break;
   }
 };
 
-export const defRoutes = (defs: IRoutesDefinition) => (
+export const defRoutes = (defs: IRoutesDefinition, helperName?: string) => (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const app = req.app as Express;
-  app.locals.expressRestfulRoutes = {};
+  try {
+    const app = req.app as Express;
+    const helper = helperName || "expressRestfulRoutes";
+    const helperObject = (res.locals[helper] = res.locals[helper] || {});
 
-  const mappings = pickActionAndResourceMapping(defs);
-  mappings.forEach(mapping => {
-    const resource = mapping.resource;
-    mapping.actions.forEach(action => {
-      const method = pickHttpMethodFromAction(action);
-      validateMethod(method);
-      const handlers = pickExpressHandlersFromAction(action);
-      registerRoute(app, resource, method, handlers);
+    const mappings = pickActionAndResourceMapping(defs);
+    mappings.forEach(mapping => {
+      const resource = mapping.resource;
+
+      /* Reorder Actions due to regular expression match of express routing */
+      const sortedActions = _sortBy(mapping.actions, action =>
+        ACTION_SORT_KEYS.indexOf(pickHttpMethodFromAction(action))
+      );
+
+      sortedActions.forEach(action => {
+        const method = pickHttpMethodFromAction(action);
+        validateMethod(method);
+        const handlers = pickExpressHandlersFromAction(action);
+        registerRoute(app, resource, method, handlers, helperObject);
+      });
     });
-  });
-
-  next();
+    next();
+  } catch (e) {
+    throw new Error(e);
+  }
 };
