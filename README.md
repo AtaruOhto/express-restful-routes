@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AtaruOhto/express-restful-routes.svg?branch=master)](https://travis-ci.org/AtaruOhto/express-restful-routes)
+
 # Express RESTful Routes
 
 Helper library to generate Rails like RESTful routing for Express.
