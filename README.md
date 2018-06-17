@@ -6,7 +6,7 @@ Helper library to generate Rails like RESTful routing for Express.
 
 ## Motivation
 
-It'll tend to be very difficult to read and grasp routes if there are not rules about how to define routes, especially in the big application. This library provides Rails like RESTful route definition rules.
+It is often hard to read and grasp routes if there aren't rules about how to define routings, especially in a big application. This library provides a way of defining RESTful routes inspired by Ruby on Rails.
 
 <table>
   <thead>
