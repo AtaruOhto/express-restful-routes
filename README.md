@@ -128,8 +128,8 @@ const middleware2 = (req, res, next) => {
 };
 
 const handler = (req, res, next) => {
-  console.log(req.app.locals.expressRestfulRoutes);
-  /* Path helper functions will be available via app.locals.expressRestfulRoutes */
+  console.log(res.locals.expressRestfulRoutes);
+  /* Path helper functions will be available via res.locals.expressRestfulRoutes */
 
   if (req.params) {
     console.log(req.params);
@@ -187,32 +187,32 @@ app.listen(5555, () => {
 });
 ```
 
-By generating routes with defineRoutes(), path helper functions will be available in app.locals.expressRestfulRoutes.
+By generating routes with defineRoutes(), path helper functions will be available in res.locals.expressRestfulRoutes.
 For instance:
 
 ```
 const routes = {
   users: [
      { index: [middleware1, middleware2, handler] },
-     /* usersIndexPath() will be added into the app.locals.expressRestfulRoutes. */
+     /* usersIndexPath() will be added into the res.locals.expressRestfulRoutes. */
 
      { show: [middleware1, middleware2, handler] },
-     /* usersShowPath(param: string) will be added into the app.locals.expressRestfulRoutes. */
+     /* usersShowPath(param: string) will be added into the res.locals.expressRestfulRoutes. */
 
      { new: middleware2, handler },
-     /* usersNewPath() will be added into the app.locals.expressRestfulRoutes. */
+     /* usersNewPath() will be added into the res.locals.expressRestfulRoutes. */
 
      { create: handler },
-     /* usersCreatePath() will be added into the app.locals.expressRestfulRoutes. */
+     /* usersCreatePath() will be added into the res.locals.expressRestfulRoutes. */
 
      { edit: handler },
-     /* usersEditPath(param: string) will be added into the app.locals.expressRestfulRoutes. */
+     /* usersEditPath(param: string) will be added into the res.locals.expressRestfulRoutes. */
 
      { update: handler },
-     /* usersUpdatePath(param: string) will be added into the app.locals.expressRestfulRoutes. */
+     /* usersUpdatePath(param: string) will be added into the res.locals.expressRestfulRoutes. */
 
      { destroy: handler }
-     /* usersDestroyPath(param: string) will be added into the app.locals.expressRestfulRoutes. */
+     /* usersDestroyPath(param: string) will be added into the res.locals.expressRestfulRoutes. */
   ]
 }
 
@@ -221,8 +221,8 @@ const routes = {
 app.use(expressRestfulRoutes.defRoutes(routes));
 
 /*
-the code above will add the following path helper functions to app.locals.expressRestfulRoutes.
-These helpers can be called via app.locals.expressRestfulRoutes.
+the code above will add the following path helper functions to res.locals.expressRestfulRoutes.
+These helpers can be called via res.locals.expressRestfulRoutes.
 
 * usersIndexPath() => '/users'      => '/users'
 * usersShowPath(param: string)      => '/users/:param'
